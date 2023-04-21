@@ -22,11 +22,16 @@ class InvoiceLine {
     }
 }
 
-export class Invoice {
+    
+type InvoiceProduct = {
+    productName: string,
+    unitPrice: number
+};
+export class Invoice {    
     private lines: Record<string, InvoiceLine> = {};
     private invoiceNumber: string;
 
-    constructor(productsWithAmounts: [Product, number][], invoiceNumber: string) {
+    constructor(productsWithAmounts: [InvoiceProduct, number][], invoiceNumber: string) {
         for (const productWithAmount of productsWithAmounts) {
             const [product, amount] = productWithAmount;
             this.lines[product.productName] = new InvoiceLine(product.productName, amount, product.unitPrice);
@@ -55,7 +60,7 @@ export class Invoice {
         return this.invoiceNumber;
     }
 
-    addProduct(product: Product, amount: number) {
+    addProduct(product: InvoiceProduct, amount: number) {
         const existingLine = this.lines[product.productName];
         if (existingLine) {
             existingLine.increaseAmount(amount);
