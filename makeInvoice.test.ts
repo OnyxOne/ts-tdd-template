@@ -86,14 +86,30 @@ describe("Creating an invoice", () => {
     });
 })
 
-function getInvoiceByNumber(invoiceNumber: string) {
-    throw Error("Not implemented");
-}
-
 describe("Having an existing invoice", () => {
     beforeEach(() => {
         invoices = new FakeInvoiceRepository()
     });
+
+    test("ensure the product is added to the corresponding invoice", () => {
+        // given
+        const existingInvoice1 = new Invoice([])
+        const existingInvoice2 = new Invoice([])
+        invoices = new FakeInvoiceRepository(existingInvoice1, existingInvoice2)
+
+        new AddProductToInvoiceCommand(invoices).execute(
+            invoice2Number,
+            new Product("Blue filament", 20.0),
+            1
+        );
+
+        // then
+        const untouchedInvoice = invoices.getByInvoiceNumber(invoice1Number)
+        expect(untouchedInvoice .getLines()).toEqual([])
+
+        const updatedInvoice = invoices.getByInvoiceNumber(invoice2Number)
+        expect(updatedInvoice.getLines()[0].productName).toBe("Blue filament")
+    })
 
     test("add another product to the invoice", () => {
         // given
