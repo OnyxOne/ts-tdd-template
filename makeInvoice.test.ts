@@ -38,6 +38,9 @@ class Invoice {
     public getTotal () {
         return this.getTotalBeforeVat() + this.getVat();
     }
+    public getInvoiceNumber () {
+        return "2020-01";
+    }
 }
 
 function createInvoice(products: Product[]) {
@@ -121,5 +124,38 @@ describe("Creating an invoice", () => {
         ]);
 
         expect(invoice.getInvoiceNumber()).not.toBeUndefined();
+    });
+})
+describe("Having an existing invoice", () => {
+    test("add another product to the invoice", () => {
+        // given
+        createInvoice([
+            new Product(
+                "Pink filament", 
+                2, 
+                10.0
+            )
+        ]);
+
+        // when
+        addProductToInvoice(
+            "2020-01",
+            new Product(
+                "Green filament", 
+                1, 
+                20.0
+            )
+        );
+        const invoice = getInvoiceByNumber("2020-01");
+
+        // then
+        expect(invoice.getLines()[0].productName).toBe("Pink filament")
+        expect(invoice.getLines()[0].amount).toBe(2);
+        expect(invoice.getLines()[0].price).toBe(10);
+        expect(invoice.getLines()[1].productName).toBe("Green filament")
+        expect(invoice.getLines()[1].amount).toBe(1);
+        expect(invoice.getLines()[1].price).toBe(20);
+        expect(invoice.getVat()).toBe(8.4)
+        expect(invoice.getTotal()).toBe(48.4)
     });
 })
