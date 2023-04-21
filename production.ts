@@ -2,13 +2,21 @@
 //</editor-fold>
 
 //<editor-fold desc="api">
+export class Product {
+    constructor(
+        public productName: string,
+        public unitPrice: number) {
+    }
+}
+
 interface AddProductToInvoice {
-    execute(invoiceNumber: string, product: Product): void;
+    execute(invoiceNumber: string, product: Product, amount: number) : void
 }
 
 interface CreateInvoice {
-    create(products: Product[]): string;
+    create(productsWithAmounts: [Product, number][])
 }
+
 //</editor-fold>
 
 //<editor-fold desc="usecase">
@@ -18,7 +26,7 @@ export class AddProductToInvoiceCommand implements AddProductToInvoice {
 
     }
 
-    execute(invoiceNumber: string, product: Product) {
+    execute(invoiceNumber: string, product: Product, amount: number) {
         const invoice = this.repository.findBy(invoiceNumber);
 
         invoice.addProduct(product);
@@ -33,8 +41,8 @@ export class CreateInvoiceCommand implements CreateInvoice {
 
     }
 
-    create(products: Product[]) {
-        let invoice = new Invoice(products);
+    create(productsWithAmounts: [Product, number][]) {
+        let invoice = new Invoice(productsWithAmounts);
         this.repository.save(invoice);
         return invoice.getInvoiceNumber();
     }
@@ -45,29 +53,29 @@ export class CreateInvoiceCommand implements CreateInvoice {
 //<editor-fold desc="domain">
 const VAT = 0.21;
 
-export class Product {
-    constructor(
-        public productName: string,
-        public amount: number,
-        public unitPrice: number,
-    ) {
+class InvoiceLine {
+
+    constructor(public productName: string,
+                public amount: number,
+                public price: number) {
     }
 
-    public getTotal() {
-        return this.amount * this.unitPrice;
+    getTotal() {
+        return this.amount*this.price;
     }
 }
 
 export class Invoice {
-    constructor(public products: Product[]) {
+    private lines: InvoiceLine[]
+
+    constructor(productsWithAmounts: [Product, number][]) {
+        this.lines = productsWithAmounts.map(([product, amount]) => {
+            return new InvoiceLine(product.productName, amount, product.unitPrice)
+        })
     }
 
     public getLines() {
-        return this.products.map(product => ({
-            'productName': product.productName,
-            'amount': product.amount,
-            'price': product.unitPrice,
-        }))
+        return this.lines
     }
 
     public getVat() {
@@ -75,8 +83,8 @@ export class Invoice {
     }
 
     private getTotalBeforeVat() {
-        return this.products.reduce((total, product) =>
-            total + product.getTotal(), 0);
+        return this.lines.reduce((total, invoiceLine) =>
+            total + invoiceLine.getTotal(), 0);
     }
 
     public getTotal() {
@@ -87,8 +95,9 @@ export class Invoice {
         return "2020-01";
     }
 
-    addProduct(product: Product) {
-        this.products.push(product)
+    addProduct(product: Product, amount: number = 1) {
+        const newLine = new InvoiceLine(product.productName, amount, product.unitPrice)
+        this.lines.push(newLine)
     }
 }
 

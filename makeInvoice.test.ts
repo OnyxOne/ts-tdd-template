@@ -42,11 +42,7 @@ describe("Creating an invoice", () => {
     test("with a single product", () => {
         // when
         var invoiceNumber = new CreateInvoiceCommand(invoices).create([
-            new Product(
-                "Pink filament",
-                2,
-                10.0
-            )
+            [new Product("Pink filament", 10.0), 2]
         ]);
 
         // then
@@ -55,11 +51,7 @@ describe("Creating an invoice", () => {
     test("with a single product with another price and name", () => {
         // when
         var invoiceNumber = new CreateInvoiceCommand(invoices).create([
-            new Product(
-                "Green filament",
-                1,
-                20.0
-            )
+            [new Product("Green filament", 20.0), 1]
         ]);
 
         // then
@@ -68,8 +60,8 @@ describe("Creating an invoice", () => {
     test("with two products", () => {
         // when
         const invoiceNumber = new CreateInvoiceCommand(invoices).create([
-            new Product("Pink filament", 2, 10.0),
-            new Product("Green filament", 1, 20.0),
+            [new Product("Pink filament", 10.0), 2],
+            [new Product("Green filament", 20.0), 1],
         ]);
 
         // then
@@ -87,11 +79,7 @@ describe("Creating an invoice", () => {
     test("with an invoice number", () => {
         // when
         var invoiceNumber = new CreateInvoiceCommand(invoices).create([
-            new Product(
-                "Pink filament",
-                2,
-                10.0
-            )
+            [new Product("Pink filament", 10.0), 2]
         ]);
 
         expect(invoiceNumber).not.toBeUndefined();
@@ -109,13 +97,15 @@ describe("Having an existing invoice", () => {
 
     test("add another product to the invoice", () => {
         // given
-        const existingInvoice = new Invoice([new Product("Pink filament", 2, 10.0)])
+        const existingInvoice = new Invoice([
+            [new Product("Pink filament", 10.0), 2]])
         invoices = new FakeInvoiceRepository(existingInvoice)
 
         // when
         new AddProductToInvoiceCommand(invoices).execute(
             "2020-01",
-            new Product("Green filament", 1, 20.0)
+            new Product("Green filament", 20.0),
+            1
         );
 
         const invoice = invoices.getByInvoiceNumber("2020-01")
