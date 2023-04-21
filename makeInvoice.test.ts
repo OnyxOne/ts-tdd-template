@@ -1,4 +1,6 @@
-import {AddProductToInvoiceCommand, CreateInvoiceCommand, Invoice, InvoiceRepository, Product} from "./production";
+import { Product } from './code/application/api/api';
+import { CreateInvoiceCommand, AddProductToInvoiceCommand } from './code/application/usecases/usecases';
+import { InvoiceRepository, Invoice } from './code/domain/domain';
 
 class FakeInvoiceRepository implements InvoiceRepository {
     private invoices: Record<string, Invoice> = {};
