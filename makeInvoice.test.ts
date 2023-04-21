@@ -164,7 +164,7 @@ function getInvoiceByNumber(invoiceNumber: string) {
     throw Error("Not implemented");
 }
 
-xdescribe("Having an existing invoice", () => {
+describe("Having an existing invoice", () => {
     test("add another product to the invoice", () => {
         // given
         createInvoice([
