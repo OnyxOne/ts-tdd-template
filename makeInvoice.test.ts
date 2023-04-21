@@ -1,4 +1,4 @@
-import {AddProductToInvoice, CreateInvoiceCommand, Invoice, InvoiceRepository, Product} from "./production";
+import {AddProductToInvoiceCommand, CreateInvoiceCommand, Invoice, InvoiceRepository, Product} from "./production";
 
 class FakeInvoiceRepository implements InvoiceRepository {
 
@@ -113,7 +113,7 @@ describe("Having an existing invoice", () => {
         invoices = new FakeInvoiceRepository(existingInvoice)
 
         // when
-        new AddProductToInvoice(invoices).execute(
+        new AddProductToInvoiceCommand(invoices).execute(
             "2020-01",
             new Product("Green filament", 1, 20.0)
         );

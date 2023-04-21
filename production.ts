@@ -2,12 +2,18 @@
 //</editor-fold>
 
 //<editor-fold desc="api">
+interface AddProductToInvoice {
+    execute(invoiceNumber: string, product: Product): void;
+}
+
+interface CreateInvoice {
+    create(products: Product[]): string;
+}
 //</editor-fold>
 
 //<editor-fold desc="usecase">
-import * as repl from "repl";
 
-export class AddProductToInvoice {
+export class AddProductToInvoiceCommand implements AddProductToInvoice {
     constructor(private repository: InvoiceRepository) {
 
     }
@@ -21,12 +27,13 @@ export class AddProductToInvoice {
     }
 
 }
-export class CreateInvoiceCommand {
+
+export class CreateInvoiceCommand implements CreateInvoice {
     constructor(private repository: InvoiceRepository) {
 
     }
 
-    public create(products: Product[]) {
+    create(products: Product[]) {
         let invoice = new Invoice(products);
         this.repository.save(invoice);
         return invoice.getInvoiceNumber();
