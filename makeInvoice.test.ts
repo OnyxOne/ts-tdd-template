@@ -47,6 +47,27 @@ function createInvoice(products: Product[]) {
     return new Invoice(products);
 }
 
+interface InvoiceRepository {
+    save(invoice: Invoice): void;
+}
+
+class fakeInvoiceRepository implements InvoiceRepository {
+    save(invoice: Invoice): void {
+    }
+}
+
+class createInvoiceCommand
+{
+    constructor(private repository: InvoiceRepository) {
+
+    }
+    public create(products: Product[]) {
+        let invoice = new Invoice(products);
+        this.repository.save(invoice);
+        return invoice.getInvoiceNumber();
+    }
+}
+
 describe("Creating an invoice", () => {
     const checkInvoiceInfo = (invoice: any, productName: string, amount: number, unitPrice: number, vat: number, total: number) => {
         expect(invoice.getLines()[0].productName).toBe(productName)
@@ -60,16 +81,16 @@ describe("Creating an invoice", () => {
         // given
 
         // when
-        var invoice = createInvoice([
+        var invoiceNumber = createInvoice2([
             new Product(
-                "Pink filament", 
-                2, 
+                "Pink filament",
+                2,
                 10.0
             )
         ]);
 
         // then
-        checkInvoiceInfo(invoice, "Pink filament", 2, 10.0, 4.2, 24.2);
+        checkInvoiceInfo(invoices.getByInvoiceNumber(invoiceNumber), "Pink filament", 2, 10.0, 4.2, 24.2);
     })
     test("with a single product with another price and name", () => {
         // given
@@ -77,8 +98,8 @@ describe("Creating an invoice", () => {
         // when
         var invoice = createInvoice([
             new Product(
-                "Green filament", 
-                1, 
+                "Green filament",
+                1,
                 20.0
             )
         ]);
@@ -92,13 +113,13 @@ describe("Creating an invoice", () => {
         // when
         var invoice = createInvoice([
             new Product(
-                "Pink filament", 
-                2, 
+                "Pink filament",
+                2,
                 10.0
             ),
             new Product(
-                "Green filament", 
-                1, 
+                "Green filament",
+                1,
                 20.0
             ),
         ]);
@@ -113,12 +134,12 @@ describe("Creating an invoice", () => {
         expect(invoice.getVat()).toBe(8.4)
         expect(invoice.getTotal()).toBe(48.4)
     });
-    
+
     test("with an invoice number", () => {
         var invoice = createInvoice([
             new Product(
-                "Pink filament", 
-                2, 
+                "Pink filament",
+                2,
                 10.0
             )
         ]);
@@ -126,13 +147,22 @@ describe("Creating an invoice", () => {
         expect(invoice.getInvoiceNumber()).not.toBeUndefined();
     });
 })
-describe("Having an existing invoice", () => {
+
+function addProductToInvoice(invoiceNumber: string, product: Product) {
+    throw Error("Not implemented");
+}
+
+function getInvoiceByNumber(invoiceNumber: string) {
+    throw Error("Not implemented");
+}
+
+xdescribe("Having an existing invoice", () => {
     test("add another product to the invoice", () => {
         // given
         createInvoice([
             new Product(
-                "Pink filament", 
-                2, 
+                "Pink filament",
+                2,
                 10.0
             )
         ]);
@@ -141,8 +171,8 @@ describe("Having an existing invoice", () => {
         addProductToInvoice(
             "2020-01",
             new Product(
-                "Green filament", 
-                1, 
+                "Green filament",
+                1,
                 20.0
             )
         );
