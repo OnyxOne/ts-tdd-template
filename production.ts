@@ -29,7 +29,7 @@ export class AddProductToInvoiceCommand implements AddProductToInvoice {
     execute(invoiceNumber: string, product: Product, amount: number) {
         const invoice = this.repository.findBy(invoiceNumber);
 
-        invoice.addProduct(product);
+        invoice.addProduct(product, amount);
 
         this.repository.save(invoice);
     }
@@ -37,12 +37,12 @@ export class AddProductToInvoiceCommand implements AddProductToInvoice {
 }
 
 export class CreateInvoiceCommand implements CreateInvoice {
-    constructor(private repository: InvoiceRepository) {
+    constructor(private repository: InvoiceRepository, private getInvoiceNumber: () => string) {
 
     }
 
     create(productsWithAmounts: [Product, number][]) {
-        let invoice = new Invoice(productsWithAmounts);
+        let invoice = new Invoice(productsWithAmounts, this.getInvoiceNumber());
         this.repository.save(invoice);
         return invoice.getInvoiceNumber();
     }
@@ -67,15 +67,17 @@ class InvoiceLine {
 
 export class Invoice {
     private lines: InvoiceLine[]
+    private invoiceNumber: string;
 
-    constructor(productsWithAmounts: [Product, number][]) {
+    constructor(productsWithAmounts: [Product, number][], invoiceNumber: string) {
         this.lines = productsWithAmounts.map(([product, amount]) => {
             return new InvoiceLine(product.productName, amount, product.unitPrice)
-        })
+        });
+        this.invoiceNumber = invoiceNumber;
     }
 
     public getLines() {
-        return this.lines
+        return this.lines;
     }
 
     public getVat() {
@@ -92,10 +94,10 @@ export class Invoice {
     }
 
     public getInvoiceNumber() {
-        return "2020-01";
+        return this.invoiceNumber;
     }
 
-    addProduct(product: Product, amount: number = 1) {
+    addProduct(product: Product, amount: number) {
         const newLine = new InvoiceLine(product.productName, amount, product.unitPrice)
         this.lines.push(newLine)
     }
