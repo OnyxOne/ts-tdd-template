@@ -52,11 +52,18 @@ interface InvoiceRepository {
 }
 
 class fakeInvoiceRepository implements InvoiceRepository {
+    private invoice: Invoice;
     save(invoice: Invoice): void {
+       this.invoice = invoice;
     }
+
+    getByInvoiceNumber(invoiceNumber: string) {
+        return this.invoice;
+    }
+
 }
 
-class createInvoiceCommand
+class CreateInvoiceCommand
 {
     constructor(private repository: InvoiceRepository) {
 
@@ -79,9 +86,10 @@ describe("Creating an invoice", () => {
 
     test("with a single product", () => {
         // given
+        const invoices = new fakeInvoiceRepository()
 
         // when
-        var invoiceNumber = createInvoice2([
+        var invoiceNumber = new CreateInvoiceCommand(invoices).create([
             new Product(
                 "Pink filament",
                 2,
